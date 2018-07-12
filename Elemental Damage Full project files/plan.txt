@@ -1,0 +1,16 @@
+Creating an element system	Start Date:July 4, 2018
+-------------------------------------------------------
+
+I want each element to have all the information about itself so that it's quick to setup import and use.
+
+-window to add and modify/edit current element types? Yes: have it look like the pokemon type chart
+
+Element items:
+-name
+-list of suppereffective (multiplyer when attacking with this element)
+-list of resistant (multiplyer when defending with this element)
+-method to return effectiveness (enter type(s) of target and return the multiplyer value)
+(first check supereffective, multiplply any values. Then check Resistants, multiply/divide any values)
+
+supereffective and resistant are their own class containing an element & a multiplyer
+

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d442c8338376c194b8066a747019e87e, type: 3}
+  m_Name: water
+  m_EditorClassIdentifier: 
+  elementName: water
+  elementColor: {r: 0, g: 0.6666667, b: 1, a: 0.7529412}
+  symbowl: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
+  EffectivenessOnElement:
+  - element: {fileID: 11400000, guid: 52f42c46474dde3458895e47b27f975e, type: 2}
+    Multiplyer: 3
+  - element: {fileID: 11400000}
+    Multiplyer: 1
+  - element: {fileID: 11400000, guid: af815ed9de8ea144481a8f65edb9c36f, type: 2}
+    Multiplyer: 0.5
+  - element: {fileID: 11400000, guid: 51bf5d8ae5a76c34b8248111b69f2bc4, type: 2}
+    Multiplyer: 1
