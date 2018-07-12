@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.IO;
+using System.Collections;
 
 public class ElementManager
 {
@@ -8,7 +10,7 @@ public class ElementManager
     /// <summary>
     /// the location to save new Elements
     /// </summary>
-    public const string ElementFIlepath = "Assets/Resources/Elements/";
+    public const string ElementFIlepath = "Assets/Elements/";
 
     /// <summary>
     /// the elements that have been loaded
@@ -51,7 +53,7 @@ public class ElementManager
 
         //find the element
         bool foundElement = false;
-        for (int i = 0; i < Elements[row].EffectivenessOnElement.Count && !foundElement; i++)
+        for (int i = Elements[row].EffectivenessOnElement.Count - 1; i >= 0 && !foundElement; i--)
         {
             //compares the name of the element we're looking for with the next element in the row's effectiveness
             //if the element we're looking for is this one.
@@ -60,6 +62,7 @@ public class ElementManager
                 if (Elements[row].EffectivenessOnElement[i].element == null)
                 {
                     Elements[row].EffectivenessOnElement.RemoveAt(i);
+                    i--;
                 }
             }
             if (i < Elements[row].EffectivenessOnElement.Count && Elements[col].elementName == Elements[row].EffectivenessOnElement[i].element.elementName)
@@ -77,12 +80,14 @@ public class ElementManager
         }
         return e;
     }
-    public void CreateElement(string ElementName, Texture ElementTexture, Color ElementColor)
+
+    public IEnumerator CreateElement(string ElementName, Texture ElementTexture, Color ElementColor)
     {
         Element newElementAsset = Element.CreateInstance<Element>();
         newElementAsset.SetValues(ElementName, ElementTexture, ElementColor);
         Elements.Add(newElementAsset);
         AssetDatabase.CreateAsset(newElementAsset, ElementFIlepath + ElementName + ".asset");
+        yield return false;
     }
 
     public void UpdateElement(int index, string ElementName, Texture ElementTexture, Color ElementColor)
@@ -115,15 +120,22 @@ public class ElementManager
         string errmsg = "";
         try
         {
-            
+
             HaveLoadedElements = true;
             #region loading the data
             Elements = new List<Element>();
-            var foundElements = Resources.FindObjectsOfTypeAll<Element>();
-            foreach(Element e in foundElements)
+            string[] foundGUIDs = AssetDatabase.FindAssets("t:Element", new string[] { ElementFIlepath.TrimEnd('/') });
+            for (int i = 0; i < foundGUIDs.Length; i++)
             {
-                Elements.Add(e);
+                Elements.Add(AssetDatabase.LoadAssetAtPath<Element>(AssetDatabase.GUIDToAssetPath(foundGUIDs[i])));
             }
+
+            //DirectoryInfo dir = new DirectoryInfo(ElementFIlepath);
+            //FileInfo[] info = dir.GetFiles("*.asset");
+            //foreach (FileInfo f in info)
+            //{   
+            //    Elements.Add(AssetDatabase.LoadAssetAtPath<Element>(ElementFIlepath + f.Name));
+            //}
             #endregion
         }
         catch (System.Exception ex)
