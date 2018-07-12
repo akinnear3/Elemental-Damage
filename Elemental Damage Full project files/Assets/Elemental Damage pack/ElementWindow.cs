@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
+/// <summary>
+/// the window to manage all of the elements
+/// </summary>
 public class ElementWindow : EditorWindow
 {
     /// <summary>
@@ -46,6 +49,9 @@ public class ElementWindow : EditorWindow
     /// </summary>
     int EditingElementIndex = -1;
 
+    /// <summary>
+    /// a placeholder for the create element mnethod
+    /// </summary>
     IEnumerator createElementDelegate;
 
     /// <summary>
@@ -58,6 +64,10 @@ public class ElementWindow : EditorWindow
         EditorWindow.GetWindow(typeof(ElementWindow));
     }
 
+    /// <summary>
+    /// for when passing information between this window and the other custom window
+    /// </summary>
+    /// <param name="emanager"></param>
     public static void ShowWindow(ElementManager emanager)
     {
         EManager = emanager;
@@ -69,9 +79,14 @@ public class ElementWindow : EditorWindow
     /// </summary>
     void OnGUI()
     {
+        //a delayed copy of the create element method
+        //this executes when it won't cause a repaint error
         if (Event.current.type != EventType.Repaint && Event.current.type != EventType.Used && createElementDelegate != null)
         {
+            //causes it to execute the lines until there is a yield return
             createElementDelegate.MoveNext();
+
+            //empties it because there's only one yield
             createElementDelegate = null;
         }
 
@@ -114,39 +129,42 @@ public class ElementWindow : EditorWindow
         //display the button, and if its pressed create the element (by executing the if statement)
         if (GUILayout.Button("Create", GUILayout.Width(100)) && ShowCreateButton)
         {
-            if(createElementDelegate == null)
-            {
-                createElementDelegate = EManager.CreateElement(newElementName, newElementTexture, newElementColor);
-            }
-            else
-            {
-                 createElementDelegate = EManager.CreateElement(newElementName, newElementTexture, newElementColor);
-            }
-            
+            //makes the create element delayed
+            createElementDelegate = EManager.CreateElement(newElementName, newElementTexture, newElementColor);
         }
-
+        //change color to indicate if update button can be used
         GUI.backgroundColor = EditingElementIndex == -1 ? Color.gray : contentReady ? Color.white : Color.red;
+
+        //the update button and conditions to use it
         if (GUILayout.Button("Update", GUILayout.Width(100)) && EditingElementIndex > -1 && contentReady)
         {
+            //update element
             EManager.UpdateElement(EditingElementIndex, newElementName, newElementTexture, newElementColor);
 
+            //reset info
             newElementColor = Color.white;
             newElementName = "";
             newElementTexture = null;
             EditingElementIndex = -1;
         }
 
+        //set color of cancel update button (and delete button)
         GUI.backgroundColor = EditingElementIndex == -1 ? Color.gray : Color.white;
+
+        //the button and when it will activate
         if (GUILayout.Button("Cancel Update", GUILayout.Width(100)) && EditingElementIndex > -1)
         {
+            //clear out info
             newElementColor = Color.white;
             newElementName = "";
             newElementTexture = null;
             EditingElementIndex = -1;
         }
 
+        //delete button and condition of use
         if (GUILayout.Button("Delete Element", GUILayout.Width(100)) && EditingElementIndex > -1)
         {
+            //deletes the element but doesn't clear out the info in case it was a mistake
             EManager.DeleteElement(EditingElementIndex);
             EditingElementIndex = -1;
         }
@@ -163,13 +181,18 @@ public class ElementWindow : EditorWindow
         GUILayout.Space(50);
 
         GUILayout.BeginHorizontal();
+
         //this groups label / title
         GUILayout.Label("Element Effectiveness");
+
+        //ability to reload the elements of there was an error or a change
         if (GUILayout.Button("Reload Elements"))
         {
             EManager = new ElementManager();
             EManager.Load();
         }
+
+        //ability to save (although it should save any important changes when they happen)
         if (GUILayout.Button("Save Changes") && EManager != null)
         {
             EManager.Save();
@@ -201,7 +224,7 @@ public class ElementWindow : EditorWindow
                     GUI.backgroundColor = e.elementColor;
 
                     //if they press the elements I want to give them the option of modifying the element
-                    if (GUILayout.Button(new GUIContent(e.elementName, e.symbowl), GUILayout.Height(80), GUILayout.Width(250)))
+                    if (GUILayout.Button(new GUIContent(e.elementName, e.symbol), GUILayout.Height(80), GUILayout.Width(250)))
                     {
                         StartEdit(e);
                     }
@@ -221,7 +244,7 @@ public class ElementWindow : EditorWindow
                     GUI.backgroundColor = EManager.Elements[row].elementColor;
 
                     //name the element used & let the user change the element's information if they click it
-                    if (GUILayout.Button(new GUIContent(EManager.Elements[row].elementName, EManager.Elements[row].symbowl), GUILayout.Height(80), GUILayout.Width(250)))
+                    if (GUILayout.Button(new GUIContent(EManager.Elements[row].elementName, EManager.Elements[row].symbol), GUILayout.Height(80), GUILayout.Width(250)))
                     {
                         StartEdit(EManager.Elements[row]);
                     }
@@ -239,7 +262,7 @@ public class ElementWindow : EditorWindow
                         GUI.backgroundColor = EManager.Elements[row].elementColor;
 
                         //display's the information and allows the relationship to be modified
-                        if (GUILayout.Button(new GUIContent("Takes " + multiplyer.ToString() + "x dmg", EManager.Elements[col].symbowl), GUILayout.Height(80), GUILayout.Width(250)))
+                        if (GUILayout.Button(new GUIContent("Takes " + multiplyer.ToString() + "x dmg", EManager.Elements[col].symbol), GUILayout.Height(80), GUILayout.Width(250)))
                         {
                             EditingEffectivenessWindow.ShowWindow(EManager, row, EManager.Elements[col].elementName);
                         }
@@ -255,17 +278,26 @@ public class ElementWindow : EditorWindow
         }
     }
 
+
+    /// <summary>
+    /// when the window in clicked onto.
+    /// Load the elements
+    /// </summary>
     private void OnEnable()
     {
         EManager = new ElementManager();
         EManager.Load();
     }
 
+    /// <summary>
+    /// passes the information of an element to that of the temp variable the window displays 
+    /// </summary>
+    /// <param name="e"></param>
     private void StartEdit(Element e)
     {
         newElementColor = e.elementColor;
         newElementName = e.elementName;
-        newElementTexture = e.symbowl;
+        newElementTexture = e.symbol;
         EditingElementIndex = e.searchForSelf(EManager.Elements);
     }
 
